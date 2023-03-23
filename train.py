@@ -1,19 +1,26 @@
 from agent.agent import Agent
 from functions import *
+import pandas as pd
+from pandas_datareader import data
 import sys
+from tqdm import trange
+import yfinance as yf
+yf.pdr_override()
 
-if len(sys.argv) != 4:
-	print ("Usage: python train.py [stock] [window] [episodes]")
+df = data.get_data_yahoo(tickers='^HSI',start='2012-01-01', end='2022-12-31')
+df = df['Close']
+if len(sys.argv) != 3:
+	print ("Usage: python train.py [window] [episodes]")
 	exit()
 
-stock_name, window_size, episode_count = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+window_size, episode_count =  int(sys.argv[1]), int(sys.argv[2])
 
 agent = Agent(window_size)
-data = getStockDataVec(stock_name)
+data = df
 l = len(data) - 1
 batch_size = 32
 
-for e in range(episode_count + 1):
+for e in trange(episode_count + 1):
 	print ("Episode " + str(e) + "/" + str(episode_count))
 	state = getState(data, 0, window_size + 1)
 
