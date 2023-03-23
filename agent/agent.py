@@ -38,7 +38,7 @@ class Agent:
 		if not self.is_eval and np.random.rand() <= self.epsilon:
 			return random.randrange(self.action_size)
 
-		options = self.model.predict(state)
+		options = self.model.predict(state,verbose=0)
 		return np.argmax(options[0])
 
 	def expReplay(self, batch_size):
@@ -50,9 +50,9 @@ class Agent:
 		for state, action, reward, next_state, done in mini_batch:
 			target = reward
 			if not done:
-				target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
+				target = reward + self.gamma * np.amax(self.model.predict(next_state,verbose=0)[0])
 
-			target_f = self.model.predict(state)
+			target_f = self.model.predict(state, verbose=0)
 			target_f[0][action] = target
 			self.model.fit(state, target_f, epochs=1, verbose=0)
 

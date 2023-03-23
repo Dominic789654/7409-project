@@ -8,7 +8,7 @@ import yfinance as yf
 yf.pdr_override()
 
 df = data.get_data_yahoo(tickers='^HSI',start='2012-01-01', end='2022-12-31')
-df = df['Close']
+df = list(df["Close"])
 if len(sys.argv) != 3:
 	print ("Usage: python train.py [window] [episodes]")
 	exit()
@@ -16,13 +16,12 @@ if len(sys.argv) != 3:
 window_size, episode_count =  int(sys.argv[1]), int(sys.argv[2])
 
 agent = Agent(window_size)
-data = df
-l = len(data) - 1
+l = len(df) - 1
 batch_size = 32
 
 for e in trange(episode_count + 1):
 	print ("Episode " + str(e) + "/" + str(episode_count))
-	state = getState(data, 0, window_size + 1)
+	state = getState(df, 0, window_size + 1)
 
 	total_profit = 0
 	agent.inventory = []
@@ -31,18 +30,18 @@ for e in trange(episode_count + 1):
 		action = agent.act(state)
 
 		# sit
-		next_state = getState(data, t + 1, window_size + 1)
+		next_state = getState(df, t + 1, window_size + 1)
 		reward = 0
 
 		if action == 1: # buy
-			agent.inventory.append(data[t])
-			print ("Buy: " + formatPrice(data[t]))
+			agent.inventory.append(df[t])
+			print ("Buy: " + formatPrice(df[t]))
 
 		elif action == 2 and len(agent.inventory) > 0: # sell
 			bought_price = agent.inventory.pop(0)
-			reward = max(data[t] - bought_price, 0)
-			total_profit += data[t] - bought_price
-			print ("Sell: " + formatPrice(data[t]) + " | Profit: " + formatPrice(data[t] - bought_price))
+			reward = max(df[t] - bought_price, 0)
+			total_profit += df[t] - bought_price
+			print ("Sell: " + formatPrice(df[t]) + " | Profit: " + formatPrice(df[t] - bought_price))
 
 		done = True if t == l - 1 else False
 		agent.memory.append((state, action, reward, next_state, done))
