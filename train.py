@@ -17,7 +17,7 @@ window_size, episode_count =  int(sys.argv[1]), int(sys.argv[2])
 
 agent = Agent(window_size)
 l = len(df) - 1
-batch_size = 32
+batch_size = 500
 
 for e in trange(episode_count + 1):
 	print ("Episode " + str(e) + "/" + str(episode_count))
